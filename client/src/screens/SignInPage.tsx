@@ -1,15 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState } from "react";
 import loginImage from '../assets/LoginPage.png'
 import { NavigateFunction, useNavigate } from 'react-router'
 import * as yup from 'yup';
 import { useFormik } from 'formik';
-import { useAppDispatch } from '../store/store'; 
+import { useAppDispatch } from '../store/store';
 import { login } from '../actions/userActions';
-import { addPerson } from '../store/Features/userSlice';
+import { addPerson, userLoginFailed } from '../store/Features/userSlice';
+import Loading from "../components/Loading";
 
 const SignInPage = () => {
     const navigate: NavigateFunction = useNavigate();
     const dispatch = useAppDispatch();
+    const [message, setMessage] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const registrationSchema = yup.object({
         email: yup.string().email('Invalid email format').required('Email is required'),
@@ -22,11 +26,18 @@ const SignInPage = () => {
         },
         validationSchema: registrationSchema,
         onSubmit: values => {
-           login(values).then((response:any) => {
-            localStorage.setItem("UserInfo", JSON.stringify(response.data));
-            dispatch(addPerson(response.data))
-            navigate('/home')
-           })
+            setLoading(true);
+            login(values).then((res: any) => {
+                if (typeof res.response?.data.error !== 'undefined') {
+                    setMessage(res.response.data.error)
+                    setLoading(false)
+                    return dispatch(userLoginFailed(res.response.data.error))
+                }
+                setLoading(false);
+                localStorage.setItem("UserInfo", JSON.stringify(res.data));
+                dispatch(addPerson(res.data))   
+                navigate('/home')
+            })
         }
     });
 
@@ -65,9 +76,13 @@ const SignInPage = () => {
                     onBlur={formik.handleBlur}
                     value={formik.values.password}
                 />
+                {
+                    message && <div className='text-custom-secondary text-center'>{message}</div>
+                }
                 <button type="submit" className="w-full p-2 mt-4 bg-custom-primary text-white rounded-xl"
                 >
-                    Sign In
+                    {loading ? <div className='flex w-full justify-center'><Loading /></div> : 'Sign Up'}
+
                 </button>
                 <button className="w-full p-2 mt-4 border-2 border-custom-primary text-custom-primary rounded-xl"
                     onClick={() => navigate('/register')}

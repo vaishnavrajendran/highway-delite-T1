@@ -22,6 +22,10 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
       min: 5,
+    },
+    verified: {
+      type: Boolean,
+      default: false
     }
   },
   { timestamps: true }

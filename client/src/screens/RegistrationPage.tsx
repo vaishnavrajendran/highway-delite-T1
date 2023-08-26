@@ -3,12 +3,16 @@ import registrationImage from '../assets/Registration.png'
 import { NavigateFunction, useNavigate } from 'react-router'
 import * as yup from 'yup';
 import { useFormik } from 'formik';
-import { useAppDispatch } from '../store/store'; 
+import { useAppDispatch } from '../store/store';
 import { register } from '../actions/userActions';
 import { addPerson } from '../store/Features/userSlice';
+import { useState } from 'react';
+import Loading from '../components/Loading';
 
 const RegistrationPage = () => {
     const navigate: NavigateFunction = useNavigate();
+    const [message, setMessage] = useState('');
+    const [loading, setLoading] = useState(false);
     const dispatch = useAppDispatch();
 
     const registrationSchema = yup.object({
@@ -32,8 +36,16 @@ const RegistrationPage = () => {
         },
         validationSchema: registrationSchema,
         onSubmit: values => {
-            register(values).then((response:any) => {
-                dispatch(addPerson(response))
+            setLoading(true);
+            register(values).then((response: any) => {
+                setLoading(false)
+                console.log("response", response);
+                if (typeof response.response?.data.error !== 'undefined') {
+                    return setMessage(response.response.data.error)
+                }
+                localStorage.setItem("UserInfo", JSON.stringify(response.data));
+                dispatch(addPerson(response.data))
+                navigate('/otp-verification')
             })
         }
     });
@@ -133,8 +145,12 @@ const RegistrationPage = () => {
                 {formik.touched.email && formik.errors.email && (
                     <div className='text-custom-secondary'>{formik.errors.email}</div>
                 )}
+                {
+                    message && <div className='text-custom-secondary text-center'>{message}</div>
+                }
+
                 <button type="submit" className="w-full p-2 mt-4 bg-custom-primary text-white rounded-xl">
-                    Sign Up
+                    {loading ? <div className='flex w-full justify-center'><Loading /></div> : 'Sign Up'}
                 </button>
             </form>
         </section>

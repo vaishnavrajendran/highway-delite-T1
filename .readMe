@@ -1,3 +1,9 @@
+
 Front end and backend basic setup done in previous commit.
 User registration without email verification is done.
 User Login also done.
+
+Added jwt authentication, loading  components
+Added email verification
+localStorage 
+homepage also done.
