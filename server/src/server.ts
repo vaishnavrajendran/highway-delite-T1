@@ -20,10 +20,6 @@ app.use(cors());
 /* ROUTES */
 app.use("/auth", authRoutes);
 
-app.get('/', (req, res) => {
-    res.send('Hello from backend!');
-});
-
 /* MONGOOSE SETUP */
 const PORT = process.env.PORT || '3000';
 const MONGO_URL = process.env.MONGO_URL as string;

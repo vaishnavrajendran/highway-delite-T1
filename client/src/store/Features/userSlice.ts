@@ -14,7 +14,6 @@ export const userSlice = createSlice({
   initialState,
   reducers: {
     addPerson: (state, action: PayloadAction<UserDetailsType>) => {
-      console.log("Actin", action.payload);
       state.userInfo = action.payload
     },
     userLoginFailed: (state, action) => {

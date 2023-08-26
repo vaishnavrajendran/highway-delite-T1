@@ -19,8 +19,6 @@ type UserObject = {
 export const login = async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
-        console.log("Env", process.env.SMTP_MAIL, process.env.SMTP_PASS);
-
         const user = await Users.findOne({ email: email });
         if (!user) {
             throw new Error("User does not exist. ");
@@ -119,7 +117,6 @@ export const fetchOtp = async (req: Request, res: Response) => {
     }
     const userOtp = await Otp.findOne({ userId: new mongoose.Types.ObjectId(req.user.id) }).sort({ createdAt: -1 }).exec();
     if (userOtp) {
-        console.log("UserOTP", userOtp);
         const isMatch = await bcrypt.compare(otp, userOtp.otp)
         return isMatch ? res.status(200).json({ message: 'Otp Verified' }) : res.status(200).json({ message: 'Wrong Otp' })
     } else {

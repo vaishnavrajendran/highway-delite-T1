@@ -39,7 +39,6 @@ const RegistrationPage = () => {
             setLoading(true);
             register(values).then((response: any) => {
                 setLoading(false)
-                console.log("response", response);
                 if (typeof response.response?.data.error !== 'undefined') {
                     return setMessage(response.response.data.error)
                 }
