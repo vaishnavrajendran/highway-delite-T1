@@ -32,7 +32,6 @@ const RegistrationPage = () => {
         setShowPassword(prev => !prev);
     };
 
-    // Function to toggle retype password visibility
     const toggleRepPasswordVisibility = () => {
         setShowRepPassword(prev => !prev);
     };

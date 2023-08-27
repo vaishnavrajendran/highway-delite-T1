@@ -1,9 +1,15 @@
+/* For running code in local */
 
-Front end and backend basic setup done in previous commit.
-User registration without email verification is done.
-User Login also done.
 
-Added jwt authentication, loading  components
-Added email verification
-localStorage 
-homepage also done.
+Add your env's in both client and server.
+Go to client/config/axios and rename it to localhost address.
+
+>>For running frontend :
+        cd client
+        npm i
+        npm run dev
+
+>>For running backend instance:
+        cd server
+        npm i 
+        npm run start
