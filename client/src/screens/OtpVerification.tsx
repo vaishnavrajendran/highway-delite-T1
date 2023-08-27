@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import loginImage from '../assets/LoginPage.png'
 import { NavigateFunction, useNavigate } from 'react-router'
