@@ -6,7 +6,6 @@ import HomePage from "./screens/HomePage";
 import OtpVerification from "./screens/OtpVerification";
 
 const App = () => {
-  const isAuth = useAppSelector(state => state.person.userInfo)
   const isVerified = useAppSelector(state => state.person.userInfo?.verified === true)
   
   return (
@@ -16,7 +15,7 @@ const App = () => {
           <Route path="/" element={isVerified ? <HomePage/> : <SignInPage/>}/>
           <Route path="/register" element={isVerified ? <HomePage/> : <RegistrationPage/>}/>
           <Route path="/home" element={isVerified ? <HomePage/> : <SignInPage/>} />
-          <Route path="/otp-verification" element={isAuth ? <OtpVerification/> : <SignInPage/>}/>
+          <Route path="/otp-verification" element={isVerified ? <HomePage/> : <OtpVerification/>}/>
           <Route path="*" element={<Navigate to={isVerified ? "/home" : '/'} />} />
         </Routes>
       </BrowserRouter>
