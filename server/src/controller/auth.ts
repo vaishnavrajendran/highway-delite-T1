@@ -60,7 +60,6 @@ export const register = async (req: Request, res: Response) => {
             sentOtp(req.body.email).then(async (otp) => {
                 if (typeof otp !== 'undefined') {
                     const otpHash = await bcrypt.hash(otp?.toString(), salt)
-                    console.log("otp savedUser", otp);
                     const userOtp = new Otp({
                         userId: savedUser._id,
                         email: req.body.email,

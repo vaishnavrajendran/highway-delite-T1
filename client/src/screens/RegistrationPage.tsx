@@ -10,11 +10,19 @@ import { useState } from 'react';
 import Loading from '../components/Loading';
 import Dropdown from '../components/Dropdown';
 
+interface FormValues {
+    fName: string;
+    lName: string;
+    email: string;
+    password: string;
+    repPassword: string;
+}
+
 const RegistrationPage = () => {
     const navigate: NavigateFunction = useNavigate();
-    const [message, setMessage] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [isOpen, setOpen] = useState(false);
+    const [message, setMessage] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(false);
+    const [isOpen, setOpen] = useState<boolean>(false);
     const dispatch = useAppDispatch();
     const toggleDropdown = () => {
         setOpen(prev => !prev)
@@ -29,7 +37,7 @@ const RegistrationPage = () => {
             .required('Confirm password is required'),
     });
 
-    const formik = useFormik({
+    const formik = useFormik<FormValues>({
         initialValues: {
             fName: '',
             lName: '',
@@ -38,7 +46,7 @@ const RegistrationPage = () => {
             repPassword: '',
         },
         validationSchema: registrationSchema,
-        onSubmit: values => {
+        onSubmit: (values: FormValues) => {
             setLoading(true);
             register(values).then((response: any) => {
                 setLoading(false)

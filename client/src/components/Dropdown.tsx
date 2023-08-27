@@ -6,7 +6,7 @@ interface DropdownProps {
 }
 
 const Dropdown = ({ isOpen, toggleDropdown }: DropdownProps) => {
-    const [selected, setSelected] = useState('');
+    const [selected, setSelected] = useState<string>('');
     const dropdownRef = useRef<HTMLDivElement | null>(null);
     const buttonRef = useRef<HTMLButtonElement | null>(null);
 

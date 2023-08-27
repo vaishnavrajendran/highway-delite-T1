@@ -49,7 +49,7 @@ export const login = async (formData: LoginType) => {
     }
 };
 
-export const compareOtp = async (userInfo: UserInfoType, otp:string) => {
+export const compareOtp = async (userInfo: UserInfoType, otp:string|number) => {
     try {
         const config = {
             headers: {

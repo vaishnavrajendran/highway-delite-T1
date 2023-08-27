@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import SignInPage from "./screens/SignInPage";
 import RegistrationPage from "./screens/RegistrationPage";
 import { useAppSelector } from "./store/store";
@@ -15,6 +15,7 @@ const App = () => {
           <Route path="/register" element={isAuth ? <HomePage/> : <RegistrationPage/>}/>
           <Route path="/home" element={isAuth ? <HomePage/> : <SignInPage/>} />
           <Route path="/otp-verification" element={isAuth ? <OtpVerification/> : <SignInPage/>}/>
+          <Route path="*" element={<Navigate to={isAuth ? "/home" : '/'} />} />
         </Routes>
       </BrowserRouter>
     </div>

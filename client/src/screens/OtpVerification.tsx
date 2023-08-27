@@ -14,17 +14,21 @@ export interface UserInfoType {
     token: string
 }
 
+interface FormValues {
+    otp: number | string
+}
+
 const OtpVerification = () => {
     const navigate: NavigateFunction = useNavigate();
     const userInfo: UserInfoType = useAppSelector(state => state.person.userInfo)
-    const [ loading, setLoading ] = useState(false);
-    const [message, setMessage ] = useState('');
+    const [ loading, setLoading ] = useState<boolean>(false);
+    const [message, setMessage ] = useState<string>('');
 
-    const formik = useFormik({
+    const formik = useFormik<FormValues>({
         initialValues: {
             otp: ''
         },
-        onSubmit: values => {
+        onSubmit: (values: FormValues) => {
             setLoading(true);
             compareOtp(userInfo, values.otp).then((res) => {
                 if(res.message === 'Otp Verified')

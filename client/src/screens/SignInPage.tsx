@@ -9,17 +9,22 @@ import { login } from '../actions/userActions';
 import { addPerson, userLoginFailed } from '../store/Features/userSlice';
 import Loading from "../components/Loading";
 
+interface FormValues {
+    email: string;
+    password: string;
+}
+
 const SignInPage = () => {
     const navigate: NavigateFunction = useNavigate();
     const dispatch = useAppDispatch();
-    const [message, setMessage] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(false);
 
     const registrationSchema = yup.object({
         email: yup.string().email('Invalid email format').required('Email is required'),
     });
 
-    const formik = useFormik({
+    const formik = useFormik<FormValues>({
         initialValues: {
             email: '',
             password: ''
@@ -81,7 +86,7 @@ const SignInPage = () => {
                 }
                 <button type="submit" className="w-full p-2 mt-4 bg-custom-primary text-white rounded-xl"
                 >
-                    {loading ? <div className='flex w-full justify-center'><Loading /></div> : 'Sign Up'}
+                    {loading ? <div className='flex w-full justify-center'><Loading /></div> : 'Sign In'}
 
                 </button>
                 <button className="w-full p-2 mt-4 border-2 border-custom-primary text-custom-primary rounded-xl"
