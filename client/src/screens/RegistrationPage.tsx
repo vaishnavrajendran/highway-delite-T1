@@ -9,6 +9,7 @@ import { addPerson } from '../store/Features/userSlice';
 import { useState } from 'react';
 import Loading from '../components/Loading';
 import Dropdown from '../components/Dropdown';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 interface FormValues {
     fName: string;
@@ -23,7 +24,19 @@ const RegistrationPage = () => {
     const [message, setMessage] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [isOpen, setOpen] = useState<boolean>(false);
+    const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [showRepPassword, setShowRepPassword] = useState<boolean>(false);
     const dispatch = useAppDispatch();
+
+    const togglePasswordVisibility = () => {
+        setShowPassword(prev => !prev);
+    };
+
+    // Function to toggle retype password visibility
+    const toggleRepPasswordVisibility = () => {
+        setShowRepPassword(prev => !prev);
+    };
+
     const toggleDropdown = () => {
         setOpen(prev => !prev)
     }
@@ -103,29 +116,47 @@ const RegistrationPage = () => {
                 {formik.touched.lName && formik.errors.lName && (
                     <div className='text-custom-secondary'>{formik.errors.lName}</div>
                 )}
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Set Password"
-                    required
-                    className="w-full p-2 border-b border-gray-300 mb-2"
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    value={formik.values.password}
-                />
+                <div className="relative">
+                    <input
+                        type={showPassword ? 'text' : 'password'}
+                        name="password"
+                        placeholder="Set Password"
+                        required
+                        className="w-full p-2 border-b border-gray-300 mb-2 pr-10"
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        value={formik.values.password}
+                    />
+                    <button
+                        type="button"
+                        className="absolute right-2 top-2 cursor-pointer text-custom-primary"
+                        onClick={togglePasswordVisibility}
+                    >
+                        {showPassword ? <FaEyeSlash /> : <FaEye />}
+                    </button>
+                </div>
                 {formik.touched.password && formik.errors.password && (
                     <div className='text-custom-secondary'>{formik.errors.password}</div>
                 )}
-                <input
-                    type="password"
-                    name="repPassword"
-                    placeholder="Retype Password"
-                    required
-                    className="w-full p-2 border-b border-gray-300 mb-2"
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    value={formik.values.repPassword}
-                />
+                <div className="relative">
+                    <input
+                        type={showRepPassword ? 'text' : 'password'}
+                        name="repPassword"
+                        placeholder="Retype Password"
+                        required
+                        className="w-full p-2 border-b border-gray-300 mb-2 pr-10"
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        value={formik.values.repPassword}
+                    />
+                    <button
+                        type="button"
+                        className="absolute right-2 top-2 cursor-pointer text-custom-primary"
+                        onClick={toggleRepPasswordVisibility}
+                    >
+                        {showRepPassword ? <FaEyeSlash /> : <FaEye />}
+                    </button>
+                </div>
                 {formik.touched.repPassword && formik.errors.repPassword && (
                     <div className='text-custom-secondary'>{formik.errors.repPassword}</div>
                 )}
