@@ -8,18 +8,22 @@ import { register } from '../actions/userActions';
 import { addPerson } from '../store/Features/userSlice';
 import { useState } from 'react';
 import Loading from '../components/Loading';
+import Dropdown from '../components/Dropdown';
 
 const RegistrationPage = () => {
     const navigate: NavigateFunction = useNavigate();
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
+    const [isOpen, setOpen] = useState(false);
     const dispatch = useAppDispatch();
+    const toggleDropdown = () => {
+        setOpen(prev => !prev)
+    }
 
     const registrationSchema = yup.object({
         fName: yup.string().min(4, 'First Name Should be mininum 4 characters').required('First name is required'),
         lName: yup.string().min(1, 'Last Name Should be mininum 1 characters').required('Last name is required'),
         email: yup.string().email('Invalid email format').required('Email is required'),
-        mode: yup.string().required('Mode is required'),
         password: yup.string().min(8, 'Password must be at least 8 characters').required('Password is required'),
         repPassword: yup.string().min(8, 'Password must be at least 8 characters').oneOf([yup.ref('password')], 'Passwords must match')
             .required('Confirm password is required'),
@@ -30,7 +34,6 @@ const RegistrationPage = () => {
             fName: '',
             lName: '',
             email: '',
-            mode: '',
             password: '',
             repPassword: '',
         },
@@ -118,19 +121,7 @@ const RegistrationPage = () => {
                 {formik.touched.repPassword && formik.errors.repPassword && (
                     <div className='text-custom-secondary'>{formik.errors.repPassword}</div>
                 )}
-                <input
-                    type="mode"
-                    name="mode"
-                    placeholder="Contact Mode"
-                    required
-                    className="w-full p-2 border-b border-gray-300 mb-2"
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    value={formik.values.mode}
-                />
-                {formik.touched.mode && formik.errors.mode && (
-                    <div className='text-custom-secondary'>{formik.errors.mode}</div>
-                )}
+                <Dropdown isOpen={isOpen} toggleDropdown={toggleDropdown} />
                 <input
                     type="email"
                     name="email"
@@ -147,7 +138,6 @@ const RegistrationPage = () => {
                 {
                     message && <div className='text-custom-secondary text-center'>{message}</div>
                 }
-
                 <button type="submit" className="w-full p-2 mt-4 bg-custom-primary text-white rounded-xl">
                     {loading ? <div className='flex w-full justify-center'><Loading /></div> : 'Sign Up'}
                 </button>
