@@ -13,7 +13,8 @@ type UserObject = {
     fName: string,
     lastName: string,
     email: string,
-    token: string
+    token: string,
+    verified?: boolean
 };
 
 export const login = async (req: Request, res: Response) => {
@@ -22,6 +23,9 @@ export const login = async (req: Request, res: Response) => {
         const user = await Users.findOne({ email: email });
         if (!user) {
             throw new Error("User does not exist. ");
+        }
+        if (user.verified === false) {
+            throw new Error('User is not verified')
         }
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
@@ -33,9 +37,10 @@ export const login = async (req: Request, res: Response) => {
             fName: user.firstName,
             lastName: user.lastName,
             email: user.email,
+            verified: user.verified,
             token
         };
-        res.status(200).json({ userObj });
+        res.status(200).json(userObj);
     } catch (err: any) {
         res.status(400).json({ error: err.message });
     }
@@ -45,38 +50,77 @@ export const login = async (req: Request, res: Response) => {
 export const register = async (req: Request, res: Response) => {
     try {
         const user = await Users.findOne({ email: req.body.email });
-        if (user) throw new Error('User already exists.Try login')
-        const salt = await bcrypt.genSalt();
-        const passwordHash = await bcrypt.hash(req.body.password, salt);
+        if (user?.verified) throw new Error('User already exists.Try login')
+        else if (user?.verified === false) {
+            const salt = await bcrypt.genSalt();
+            const passwordHash = await bcrypt.hash(req.body.password, salt);
+            const updateObj = {
+                firstName: req.body.fName,
+                lastName: req.body.lName,
+                email: req.body.email,
+                password: passwordHash,
+            }
+            await Users.findOneAndUpdate({ email: req.body.email }, updateObj, { new: true })
+                .then((savedUser => {
+                    if (savedUser !== null) {
+                        const userToken = jwt.sign({ id: savedUser._id }, process.env.JWT_SECRET as string);
+                        sentOtp(req.body.email).then(async (otp) => {
+                            if (typeof otp !== 'undefined') {
+                                const otpHash = await bcrypt.hash(otp?.toString(), salt)
+                                const userOtp = new Otp({
+                                    userId: savedUser._id,
+                                    email: req.body.email,
+                                    otp: otpHash
+                                })
+                                await userOtp.save();
+                                const userObj: UserObject = {
+                                    _id: savedUser._id,
+                                    fName: savedUser.firstName,
+                                    lastName: savedUser.lastName,
+                                    email: savedUser.email,
+                                    token: userToken
+                                };
+                                return res.status(201).json(userObj);
+                            }
+                        })
+                    } else {
+                        return res.status(400).json({ message: "User cannot be updated" })
+                    }
+                }));
+        }
+        else {
+            const salt = await bcrypt.genSalt();
+            const passwordHash = await bcrypt.hash(req.body.password, salt);
 
-        const newUser = new Users({
-            firstName: req.body.fName,
-            lastName: req.body.lName,
-            email: req.body.email,
-            password: passwordHash,
-        });
-        await newUser.save().then((savedUser => {
-            const userToken = jwt.sign({ id: savedUser._id }, process.env.JWT_SECRET as string);
-            sentOtp(req.body.email).then(async (otp) => {
-                if (typeof otp !== 'undefined') {
-                    const otpHash = await bcrypt.hash(otp?.toString(), salt)
-                    const userOtp = new Otp({
-                        userId: savedUser._id,
-                        email: req.body.email,
-                        otp: otpHash
-                    })
-                    await userOtp.save();
-                    const userObj: UserObject = {
-                        _id: savedUser._id,
-                        fName: savedUser.firstName,
-                        lastName: savedUser.lastName,
-                        email: savedUser.email,
-                        token: userToken
-                    };
-                    return res.status(201).json(userObj);
-                }
-            })
-        }));
+            const newUser = new Users({
+                firstName: req.body.fName,
+                lastName: req.body.lName,
+                email: req.body.email,
+                password: passwordHash,
+            });
+            await newUser.save().then((savedUser => {
+                const userToken = jwt.sign({ id: savedUser._id }, process.env.JWT_SECRET as string);
+                sentOtp(req.body.email).then(async (otp) => {
+                    if (typeof otp !== 'undefined') {
+                        const otpHash = await bcrypt.hash(otp?.toString(), salt)
+                        const userOtp = new Otp({
+                            userId: savedUser._id,
+                            email: req.body.email,
+                            otp: otpHash
+                        })
+                        await userOtp.save();
+                        const userObj: UserObject = {
+                            _id: savedUser._id,
+                            fName: savedUser.firstName,
+                            lastName: savedUser.lastName,
+                            email: savedUser.email,
+                            token: userToken
+                        };
+                        return res.status(201).json(userObj);
+                    }
+                })
+            }));
+        }
     } catch (err: any) {
         res.status(400).json({ error: err.message });
     }
@@ -117,7 +161,10 @@ export const fetchOtp = async (req: Request, res: Response) => {
     const userOtp = await Otp.findOne({ userId: new mongoose.Types.ObjectId(req.user.id) }).sort({ createdAt: -1 }).exec();
     if (userOtp) {
         const isMatch = await bcrypt.compare(otp, userOtp.otp)
-        return isMatch ? res.status(200).json({ message: 'Otp Verified' }) : res.status(200).json({ message: 'Wrong Otp' })
+        await Users.findOneAndUpdate({ _id: new mongoose.Types.ObjectId(req.user.id) }, { verified: true }, { new: true })
+            .then(verifiedUser => {
+                return isMatch ? res.status(200).json({ verifiedUser, message: 'Otp Verified' }) : res.status(200).json({ message: 'Wrong Otp' })
+            })
     } else {
         return res.status(400).json({ message: 'Otp expired' })
     }

@@ -16,6 +16,12 @@ export const userSlice = createSlice({
     addPerson: (state, action: PayloadAction<UserDetailsType>) => {
       state.userInfo = action.payload
     },
+    updatePerson: (state, action) => {
+      state.userInfo = {
+        ...state.userInfo,
+        ...action.payload
+      }
+    },
     userLoginFailed: (state, action) => {
       state.reason = action.payload
     },
@@ -26,4 +32,4 @@ export const userSlice = createSlice({
 });
 
 export default userSlice.reducer;
-export const { addPerson, userLoginFailed, setLogout } = userSlice.actions;
+export const { addPerson, userLoginFailed, setLogout, updatePerson } = userSlice.actions;

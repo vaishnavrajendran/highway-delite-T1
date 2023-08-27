@@ -66,7 +66,6 @@ const RegistrationPage = () => {
                 if (typeof response.response?.data.error !== 'undefined') {
                     return setMessage(response.response.data.error)
                 }
-                localStorage.setItem("UserInfo", JSON.stringify(response.data));
                 dispatch(addPerson(response.data))
                 navigate('/otp-verification')
             })

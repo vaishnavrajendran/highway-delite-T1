@@ -3,8 +3,9 @@ import loginImage from '../assets/LoginPage.png'
 import { NavigateFunction, useNavigate } from 'react-router'
 import { useFormik } from 'formik';
 import Loading from "../components/Loading";
-import { useAppSelector } from "../store/store";
+import { useAppDispatch, useAppSelector } from "../store/store";
 import { compareOtp } from "../actions/userActions";
+import { updatePerson } from "../store/Features/userSlice";
 
 export interface UserInfoType {
     email: string,
@@ -22,6 +23,7 @@ const OtpVerification = () => {
     const userInfo: UserInfoType = useAppSelector(state => state.person.userInfo)
     const [ loading, setLoading ] = useState<boolean>(false);
     const [message, setMessage ] = useState<string>('');
+    const dispatch = useAppDispatch();
 
     const formik = useFormik<FormValues>({
         initialValues: {
@@ -30,8 +32,11 @@ const OtpVerification = () => {
         onSubmit: (values: FormValues) => {
             setLoading(true);
             compareOtp(userInfo, values.otp).then((res) => {
-                if(res.message === 'Otp Verified')
-                navigate('/home')
+                if(res.message === 'Otp Verified' && res.verifiedUser.verified === true){
+                    localStorage.setItem("UserInfo", JSON.stringify(res.verifiedUser));
+                    dispatch(updatePerson(res.verifiedUser))
+                    navigate('/home')
+                }
                 else if (res.message === 'Wrong Otp'){
                     setLoading(false)
                     setMessage('Wrong Otp')
